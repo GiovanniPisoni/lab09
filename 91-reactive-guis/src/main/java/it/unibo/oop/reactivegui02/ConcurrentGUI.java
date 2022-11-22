@@ -8,6 +8,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
 
 
 
@@ -22,6 +24,7 @@ public final class ConcurrentGUI extends JFrame {
     private final JButton up = new JButton("up");
     private final JButton down = new JButton("down");
     private final JButton stop = new JButton("stop");
+    final Agent agent = new Agent();
 
     public ConcurrentGUI() {
         super();
@@ -48,7 +51,6 @@ public final class ConcurrentGUI extends JFrame {
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setVisible(true);
 
-        final Agent agent = new Agent();
         new Thread(agent).start();
 
         /*
@@ -60,51 +62,37 @@ public final class ConcurrentGUI extends JFrame {
 
     }
 
+    private class Agent implements Runnable {
 
-private class Agent implements Runnable {
+        private volatile boolean stop;
+        private volatile boolean down;
+        private int counter;
 
-    private volatile boolean stop;
-    private int counter;
-    private volatile boolean down;
-
-    @Override
-    public void run() {
-        while (!this.stop) {
-            try {
-                if (!this.down){
-                    counter++;
-                } else {
-                    counter--;
+        @Override
+        public void run() {
+                while(!this.stop) {
+                    try {
+                        this.counter += this.down ? -1 : +1;
+                        SwingUtilities.invokeAndWait(() -> ConcurrentGUI.this.display.setText(Integer.toString(counter)));
+                        Thread.sleep(100);
+                    } catch (Exception e) {
+                        e.getStackTrace();
+                    }
                 }
-                ConcurrentGUI.this.display.setText(Integer.toString(counter));
-                Thread.sleep(100);
-
-            } catch (InterruptedException e) {
-                e.getStackTrace();
             }
-        
-        }
+    
+            public void stop() {
+                this.stop = true;
+            }
+    
+            public void up() {
+                this.down = false;
+            }
+    
+            public void down() {
+                this.down = true;
+            }
+
+
     }
-
-    public void stop() {
-        this.stop = true;
-        ConcurrentGUI.this.up.setEnabled(false);
-        ConcurrentGUI.this.down.setEnabled(false);
-    }
-
-    public void up() {
-        this.down = false;
-    }
-
-    public void down() {
-        this.down = true;
-    }
-
-
-}
-
-    public static void main(String... args) {
-        new ConcurrentGUI();
-    }
-
 }
