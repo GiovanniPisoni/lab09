@@ -15,8 +15,8 @@ import javax.swing.SwingUtilities;
  * Third experiment with reactive gui.
  */
 public final class AnotherConcurrentGUI extends JFrame {
-    private static final double WIDTH_RATIO = 0.2;
-    private static final double HEIGHT_RATIO = 0.08;
+    private static final int SW_PROPORTION = 7;
+    private static final int SH_PROPORTION = 14;
     public final JLabel display = new JLabel();
     public final JButton up = new JButton("up");
     public final JButton down = new JButton("down");
@@ -36,8 +36,9 @@ public final class AnotherConcurrentGUI extends JFrame {
         canvas.add(stop);
 
         /* Setting frame dimensions */
-        final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        this.setSize((int) (screenSize.getWidth()*WIDTH_RATIO), (int) (screenSize.getHeight()*HEIGHT_RATIO));
+        final Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setSize((int) (screen.getWidth() / SW_PROPORTION), (int) (screen.getHeight() / SH_PROPORTION));
+        this.setLocationByPlatform(true);
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         this.setContentPane(canvas);
